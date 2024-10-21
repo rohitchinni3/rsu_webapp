@@ -3,14 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RSU Communication with Supabase</title>
+  <title>Location Display on Map</title>
+  
+  <!-- Supabase JS Library -->
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
+  
+  <!-- Leaflet CSS and JS for Maps -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  
+  <style>
+    #map {
+      height: 400px;
+      width: 100%;
+    }
+  </style>
 </head>
 <body>
-  <h1>RSU Communication Interface</h1>
+  <h1>Location Display from Supabase</h1>
   
-  <!-- Button that will trigger the alert -->
-  <button id="alertButton">Click Me</button>
+  <!-- Button to fetch location and update the map -->
+  <button id="fetchLocationButton">Fetch Latest Location from Supabase</button>
+
+  <!-- Map Container -->
+  <div id="map"></div>
 
   <script>
     // Initialize Supabase with your project URL and anon key
@@ -18,19 +34,62 @@
     const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF3ZWxibG1wcWxsa21jcXJmYnlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjkyMzA0NjMsImV4cCI6MjA0NDgwNjQ2M30.CKnjIm4gNbnw9INekYWAioNT1BbpgPYcBWnnsVhsxDQ";
     const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // Function to handle the button click
-    document.getElementById("alertButton").addEventListener("click", async () => {
-      try {
-        // Example: Log the current session (or perform any other Supabase operation)
-        const { data: session } = await supabase.auth.getSession();
-        console.log('Current session:', session);
+    // Initialize the map (default center is set to some location, e.g., New York)
+    let map = L.map('map').setView([40.7128, -74.0060], 12); // Default to New York City
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
-        // Display an alert on the button click
-        alert("Button clicked! Data logged to console.");
+    let marker;
+
+    // Function to fetch latitude and longitude from Supabase
+    async function fetchLocation() {
+      try {
+        // Fetch data from Supabase (replace 'coordinates' with your actual table name)
+        const { data, error } = await supabase
+          .from('coordinates')  // Your table name
+          .select('latitude, longitude')  // Fetch latitude and longitude columns
+          .limit(1)
+          .order('id', { ascending: false });  // Fetch the latest coordinates
+
+        if (error) {
+          console.error("Error fetching data:", error);
+          return;
+        }
+
+        if (data.length > 0) {
+          const latitude = data[0].latitude;
+          const longitude = data[0].longitude;
+          console.log(`Fetched Latitude: ${latitude}, Longitude: ${longitude}`);
+
+          // Update the map with the new coordinates
+          updateMap(latitude, longitude);
+        } else {
+          console.log("No data found.");
+        }
       } catch (error) {
         console.error("Error with Supabase interaction:", error);
       }
-    });
+    }
+
+    // Function to update the map with new latitude and longitude
+    function updateMap(latitude, longitude) {
+      const newLocation = [latitude, longitude];
+
+      // Set the view of the map to the new location
+      map.setView(newLocation, 12);
+
+      // If a marker already exists, update its position
+      if (marker) {
+        marker.setLatLng(newLocation);
+      } else {
+        // Add a new marker if it doesn't exist
+        marker = L.marker(newLocation).addTo(map);
+      }
+    }
+
+    // Attach an event listener to the button to fetch the location from Supabase
+    document.getElementById('fetchLocationButton').addEventListener('click', fetchLocation);
   </script>
 </body>
 </html>

@@ -31,10 +31,10 @@
   <script>
     // Initialize Supabase with your project URL and anon key
     const supabaseUrl = "https://awelblmpqllkmcqrfbyl.supabase.co";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF3ZWxibG1wcWxsa21jcXJmYnlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjkyMzA0NjMsImV4cCI6MjA0NDgwNjQ2M30.CKnjIm4gNbnw9INekYWAioNT1BbpgPYcBWnnsVhsxDQ";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF3ZWxibG1wcWxsa21jcXJmYnlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjkyMzA0NjMsImV4cCI6MjA0NDgwNjQ2M30.CKnjIm4gNbnw9INekYWAioNT1BbpgPYcBWnnsVhsxDQ";  // Replace with your actual API key
     const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // Initialize the map (default center is set to a known location)
+    // Initialize the map
     let map = L.map('map').setView([20.5937, 78.9629], 5); // Default to India
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
@@ -62,8 +62,6 @@
           const latitude = data[0].latitude;
           const longitude = data[0].longitude;
           console.log(`Fetched Latitude: ${latitude}, Longitude: ${longitude}`);
-
-          // Update the map with the new coordinates
           updateMap(latitude, longitude);
         } else {
           console.log("No data found.");
@@ -92,7 +90,10 @@
     }
 
     // Attach an event listener to the button to fetch the location from Supabase
-    document.getElementById('fetchLocationButton').addEventListener('click', fetchLocation);
+    document.getElementById('fetchLocationButton').addEventListener('click', () => {
+        console.log("Button clicked!");  // Check if the button works
+        fetchLocation();
+    });
   </script>
 </body>
 </html>

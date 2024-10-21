@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RSU Communication with Supabase</title>
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
+</head>
+<body>
+  <h1>RSU Communication Interface</h1>
+  
+  <!-- Button that will trigger the alert -->
+  <button id="alertButton">Click Me</button>
+
+  <script>
+    // Initialize Supabase with your project URL and anon key
+    const supabaseUrl = "https://awelblmpqllkmcqrfbyl.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF3ZWxibG1wcWxsa21jcXJmYnlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjkyMzA0NjMsImV4cCI6MjA0NDgwNjQ2M30.CKnjIm4gNbnw9INekYWAioNT1BbpgPYcBWnnsVhsxDQ";
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    // Function to handle the button click
+    document.getElementById("alertButton").addEventListener("click", async () => {
+      try {
+        // Example: Log the current session (or perform any other Supabase operation)
+        const { data: session } = await supabase.auth.getSession();
+        console.log('Current session:', session);
+
+        // Display an alert on the button click
+        alert("Button clicked! Data logged to console.");
+      } catch (error) {
+        console.error("Error with Supabase interaction:", error);
+      }
+    });
+  </script>
+</body>
+</html>

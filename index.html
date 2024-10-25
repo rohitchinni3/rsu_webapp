@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Vehicle Location with Map</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     
     <style>
@@ -92,12 +91,23 @@
         }
 
         .alert-button {
-            background-color: #28a745;
+            background-color: #ff4757;
             color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: none; /* Initially hidden */
+            margin: 20px auto;
+            font-size: 18px;
+            transition: opacity 0.5s ease;
         }
 
-        .alert-button.red-alert {
-            background-color: red;
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .blinking {
+            animation: blink 1s infinite; /* Blinking effect */
         }
 
         footer {
@@ -122,7 +132,7 @@
 
         <div id="map"></div>
 
-        <button id="alertButton" class="alert-button">Alert</button>
+        <div id="alertButton" class="alert-button">Alert: Vehicle is inside the defined area!</div>
 
         <footer>
             &copy; Tihan Live Vehicle Tracking
@@ -139,22 +149,21 @@
         document.addEventListener('DOMContentLoaded', async function () {
             // Initialize Supabase after DOM and JS libraries are loaded
             const supabaseUrl = 'https://awelblmpqllkmcqrfbyl.supabase.co';
-            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF3ZWxibG1wcWxsa21jcXJmYnlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjkyMzA0NjMsImV4cCI6MjA0NDgwNjQ2M30.CKnjIm4gNbnw9INekYWAioNT1BbpgPYcBWnnsVhsxDQ';
+            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF3ZWxibG1wcWxsa21jcXJmYnlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjkyMzA0NjMsImV4cCI6MjA0NDgwNjQ2M30.CKnjIm4gNbnw9INekYWAioNT1BbpgPYcBWnnsVhsxDQ'; // Use your Supabase key
             const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
             // Rectangle corner coordinates
-          const rectCorners = {
-    a: { lat: 17.601469, lng: 78.1269338 }, // Top-left (NW)
-    b: { lat: 17.601469, lng: 78.1272258 }, // Top-right (NE)
-    c: { lat: 17.601213, lng: 78.1272258 }, // Bottom-right (SE)
-    d: { lat: 17.601213, lng: 78.1269298 }  // Bottom-left (SW)
-};
-
+            const rectCorners = {
+                a: { lat: 17.601469, lng: 78.1269338 }, // Top-left (NW)
+                b: { lat: 17.601469, lng: 78.1272258 }, // Top-right (NE)
+                c: { lat: 17.601213, lng: 78.1272258 }, // Bottom-right (SE)
+                d: { lat: 17.601213, lng: 78.1269298 }  // Bottom-left (SW)
+            };
 
             // Helper function to check if point is within rectangle
-            function isPointInRectangle(point, rectCorners) {
-                const { lat: latA, lng: lngA } = rectCorners.a;
-                const { lat: latC, lng: lngC } = rectCorners.c;
+            function isPointInRectangle(point, rect) {
+                const { lat: latA, lng: lngA } = rect.a;
+                const { lat: latC, lng: lngC } = rect.c;
 
                 return point.lat <= Math.max(latA, latC) && point.lat >= Math.min(latA, latC) &&
                        point.lng <= Math.max(lngA, lngC) && point.lng >= Math.min(lngA, lngC);
@@ -202,12 +211,14 @@
                         // Check if the coordinates are inside the defined rectangle
                         const isInRectangle = isPointInRectangle(point, rectCorners);
 
-                        // Change the alert button color based on the location
+                        // Change the visibility of the alert button based on the location
                         const alertButton = document.getElementById('alertButton');
                         if (isInRectangle) {
-                            alertButton.classList.add('red-alert');
+                            alertButton.style.display = 'block'; // Show alert button if inside
+                            alertButton.classList.add('blinking'); // Add blinking effect
                         } else {
-                            alertButton.classList.remove('red-alert');
+                            alertButton.style.display = 'none'; // Hide alert button if outside
+                            alertButton.classList.remove('blinking'); // Remove blinking effect
                         }
                     } else {
                         document.getElementById('coordinates').innerText = 'No coordinates found.';
@@ -225,14 +236,9 @@
             document.getElementById('refreshButton').addEventListener('click', fetchLatestCoordinates);
 
             // Center button functionality
-            document.getElementById('centerButton').addEventListener('click', () => {
-                if (marker.getLatLng()) {
-                    map.setView(marker.getLatLng(), 13);
-                }
+            document.getElementById('centerButton').addEventListener('click', function() {
+                map.setView(marker.getLatLng(), 13);
             });
-
-            // Optionally, refresh the coordinates and map every few seconds for live updates
-            setInterval(fetchLatestCoordinates, 10000); // Fetch new coordinates every 10 seconds
         });
     </script>
 </body>

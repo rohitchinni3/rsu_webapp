@@ -153,12 +153,13 @@
             const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
             // Rectangle corner coordinates
-            const rectCorners = {
-                a: { lat: 17.601469, lng: 78.1269338 }, // Top-left (NW)
-                b: { lat: 17.601469, lng: 78.1272258 }, // Top-right (NE)
-                c: { lat: 17.601213, lng: 78.1272258 }, // Bottom-right (SE)
-                d: { lat: 17.601213, lng: 78.1269298 }  // Bottom-left (SW)
-            };
+           const roadCorners = {
+    a: { lat: 17.6030062, lng: 78.126237 }, // Top-left (NW)
+    b: { lat: 17.6030062, lng: 78.126883 }, // Top-right (NE)
+    c: { lat: 17.6021082, lng: 78.126883 }, // Bottom-right (SE)
+    d: { lat: 17.6021082, lng: 78.126237 }  // Bottom-left (SW)
+};
+
 
             // Helper function to check if point is within rectangle
             function isPointInRectangle(point, rect) {
